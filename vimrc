@@ -112,7 +112,7 @@ nmap <silent> <leader>s :set nolist!<CR>
 autocmd User Rails nnoremap <buffer> <D-r> :<C-U>Rake<CR>
 autocmd User Rails nnoremap <buffer> <D-R> :<C-U>.Rake<CR>
 
-set clipboard+=unnamed
+"set clipboard+=unnamed
 
 " expand %% to current file path in command mode
 cabbr <expr> %% expand('%:p:h')
