@@ -50,7 +50,7 @@ set undodir=~/.vim-tmp/undo,~/.tmp,~/tmp,/var/tmp,/tmp
 set laststatus=2
 
 set background=dark
-colorscheme grb256
+colorscheme wombat256
 
 set colorcolumn=80
 highlight ColorColumn ctermbg=18
