@@ -101,6 +101,7 @@ nnoremap <C-l> <C-w>l
 
 map <Leader>] <Plug>MakeGreen
 autocmd BufNewFile,BufRead *_spec.rb compiler rspec
+autocmd BufRead lib/* call ShowCoverage()
 
 nnoremap <leader>n :nohlsearch<cr>
 
@@ -193,10 +194,17 @@ endif
 " RUNNING TESTS
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 map <leader>t :call RunTestFile()<cr>
+map <leader>c :call RunTestFileWithCoverage()<cr>
+map <leader>ca :call RunTestsWithCoverage('')<cr>
 map <leader>T :call RunNearestTest()<cr>
 map <leader>a :call RunTests('')<cr>
-map <leader>c :w\|:!script/features<cr>
 map <leader>p :w\|:!cucumber --profile wip %<cr>
+
+function! ShowCoverage()
+  if filereadable('coverage.vim')
+    exec ':source ' . fnamemodify('coverage.vim', ':p')
+  endif
+endfunction
 
 function! RunTestFile(...)
     if a:0
@@ -213,6 +221,39 @@ function! RunTestFile(...)
         return
     end
     call RunTests(t:grb_test_file . command_suffix)
+endfunction
+
+function! RunTestFileWithCoverage(...)
+    if a:0
+        let command_suffix = a:1
+    else
+        let command_suffix = ""
+    endif
+
+    " Run the tests for the previously-marked file.
+    let in_test_file = match(expand("%"), '\(.feature\|_spec.rb\|_test.rb\)$') != -1
+    if in_test_file
+        call SetTestFile()
+    elseif !exists("t:grb_test_file")
+        return
+    end
+    call RunTestsWithCoverage(t:grb_test_file . command_suffix)
+    if in_test_file
+      return
+    elseif
+      exec ':source ' . fnamemodify('coverage.vim', ':p')
+    endif
+endfunction
+
+function! RunTestsWithCoverage(filename)
+    " Write the file and run tests for the given filename
+    :w
+    let run_test = "script/coverage " . a:filename
+    if $TMUX != ""
+      call VimuxRunCommand("clear; " . run_test)
+    else
+      exec ":!" . run_test
+    endif
 endfunction
 
 function! RunNearestTest()
